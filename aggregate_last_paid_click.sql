@@ -20,6 +20,7 @@ last_paid_click AS (
     SELECT
         visitor_id,
         visit_date::date AS visit_date,
+        visit_date AS visit_timestamp,
         utm_source,
         utm_medium,
         utm_campaign
@@ -41,7 +42,9 @@ clicks_leads AS (
             WHERE l.status_id = 142 OR l.closing_reason = 'Успешная продажа'
         ) AS revenue
     FROM last_paid_click lpc
-    LEFT JOIN leads l ON lpc.visitor_id = l.visitor_id
+    LEFT JOIN leads l
+        ON lpc.visitor_id = l.visitor_id
+        AND l.created_at >= lpc.visit_timestamp
     GROUP BY lpc.visit_date, lpc.utm_source, lpc.utm_medium, lpc.utm_campaign
 ),
 ads_spent AS (
